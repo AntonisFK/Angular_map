@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  
+  <!-- Google Maps API -->
+  <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAMaZwB8F53MWTtQtvdW6XrShcoIUBqxPk"></script>
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.14/angular.min.js"></script>
+<script src="//rawgit.com/angular-ui/angular-google-maps/2.1.5/dist/angular-google-maps.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
+
+
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+ 
+<style>
+    .angular-google-map-container {
+        height: 400px;
+}
+
+</style>
+
+
+
+ <script>
+    var myApp = angular.module('myApp', ['uiGmapgoogle-maps'])
+
+   myApp.config(function(uiGmapGoogleMapApiProvider) {
+    uiGmapGoogleMapApiProvider.configure({
+        //    key: 'your api key',
+        v: '3.20', //defaults to latest 3.X anyhow
+        libraries: 'weather,geometry,visualization'
+        });
+    })
+
+   myApp.controller("Example", function($scope, $log, uiGmapGoogleMapApi) {
+       var savedLocations = []; 
+        $scope.polylines = [];
+       $scope.map = {
+       center: {latitude: 44, longitude: -108 }, 
+       zoom: 4,
+       events : function(){
+
+       }
+     };
+        
+
+      $scope.marker = {
+      id: 0,
+      coords: {
+        latitude: 44,
+        longitude: -108
+      },
+      options: { draggable: true },
+      events: {
+        dragend: function (marker, eventName, args) { 
+        
+
+          var lat = marker.getPosition().lat();
+          var lon = marker.getPosition().lng();
+          $log.log(lat);
+          $log.log(lon);
+
+       
+          var markers = {
+            id: Date.now(),
+            coords: {
+              latitude: lat,
+              longitude: lon
+            
+              }
+            }
+
+
+
+          savedLocations.push(markers);
+
+
+          $scope.savedLocations = savedLocations;
+
+          $scope.marker.options = {
+            draggable: true,
+            labelContent: "lat: " + $scope.marker.coords.latitude + ' ' + 'lon: ' + $scope.marker.coords.longitude,
+            labelAnchor: "100 0",
+            labelClass: "marker-labels"
+          };
+
+        }
+      }
+
+
+    };
+    
+    uiGmapGoogleMapApi.then(function(maps) {
+
+    });
+
+
+  $scope.click = function() {
+    $scope.savedLocations = null;
+  }
+});
+
+ </script>
+</head>
+<body>
+    <div id="map_canvas" ng-controller="Example" class="container">
+    <ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" options="options" events="map.events">
+   
+   <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id">  </ui-gmap-marker>
+
+   <ui-gmap-marker ng-repeat="m in savedLocations " coords="m.coords" icon="m.icon" idkey="m.id"></ui-gmap-marker>
+
+   <ui-gmap-polyline ng-repeat="p in polylines" path="p.path" stroke="p.stroke" visible='p.visible'
+                  geodesic='p.geodesic' fit="false" editable="p.editable" draggable="p.draggable" icons='p.icons'></ui-gmap-polyline>
+   </ui-gmap-google-map>
+  
+
+
+  <ul class="col-lg-6">
+    <li ng-repeat=" b in savedLocations">{{b.coords}}</li>
+  </ul>    
+  <button ng-click="click()">Clear</button>
+
+
+</div>
+
+</body>
+</html>

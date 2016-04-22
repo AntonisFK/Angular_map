@@ -1,0 +1,8 @@
+{
+  "name": "Player_and_Teams",
+  "dependencies": {
+    "body-parser": "^1.10.1",
+    "express": "^4.10.0"
+  }
+}
+
